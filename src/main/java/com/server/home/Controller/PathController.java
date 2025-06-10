@@ -1,11 +1,15 @@
 package com.server.home.Controller;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,8 +23,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.server.home.Exception.IsDirectoryException;
 import com.server.home.Model.BodyDirectory;
@@ -35,7 +41,7 @@ public class PathController {
         List<PathResponse> response = new ArrayList<>();
         String home = "C:\\";
         Path toFetchIn = Paths.get(home + path);
-
+        System.out.println("");
         System.out.println(Files.exists(toFetchIn));
         if (!Files.exists(toFetchIn)) {
             throw new FileNotFoundException();
@@ -70,7 +76,6 @@ public class PathController {
         String home = "C:";
         Path toCreateIn = Paths.get(home + path);
 
-        System.out.println(body.getDirectoryName());
         Path newCreated = Paths.get(home + path + "\\" + body.getDirectoryName());
         if (!Files.exists(toCreateIn)) {
             throw new FileNotFoundException();
@@ -81,6 +86,32 @@ public class PathController {
         Files.createDirectory(newCreated);
 
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/upload/{*path}")
+    public ResponseEntity<Void> uploadFile(@PathVariable String path,@RequestParam MultipartFile file) throws IOException{
+        String home = "C:";
+        Path toSaveIn = Paths.get(home + path);
+        if (!Files.exists(toSaveIn)) {
+            throw new FileNotFoundException();
+        }
+        if (!Files.isDirectory(toSaveIn)) {
+            throw new NotDirectoryException(toSaveIn.toString());
+        }
+        
+        String fileName = file.getOriginalFilename();
+        InputStream fileIn = file.getInputStream();
+
+        Path filePath = Paths.get(home + path + "/" + fileName);
+        
+        if (!Files.exists(filePath)){
+            Files.createFile(filePath);
+        }
+
+        Files.copy(fileIn, filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        return ResponseEntity.ok().build();
+
     }
 
     @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "path refers to a file")

@@ -32,7 +32,7 @@ public class ControlerModifiers {
         response.setPath(stringPath.substring(homeEnd + 1));
         response.setIsDirectory(Files.isDirectory(path));
         if (!response.getIsDirectory()) {
-            response.setSize(Integer.valueOf(Files.getAttribute(path, "size").toString()));
+            response.setSize(Files.getAttribute(path, "size").toString());
         }  
         ZonedDateTime istTime = Files.getLastModifiedTime(path).toInstant().atZone(ZoneId.of("Asia/Kolkata"));
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

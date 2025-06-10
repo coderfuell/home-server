@@ -5,7 +5,7 @@ public class PathResponse {
     private String path;
     private boolean isDirectory;
     private String timeModified;
-    private Integer size;
+    private String size;
 
     public PathResponse() {
     }
@@ -28,7 +28,7 @@ public class PathResponse {
         return this.timeModified;
     }
 
-    public Integer getSize() {
+    public String getSize() {
         return size;
     }
 
@@ -44,7 +44,7 @@ public class PathResponse {
         this.timeModified = timeModified;
     }
 
-    public void setSize(Integer size) {
+    public void setSize(String size) {
         this.size = size;
     }
 }
