@@ -1,7 +1,9 @@
 package com.server.home.Model;
 
+import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -15,7 +17,7 @@ public class PathList {
         return null;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException{
         FileSystem fs = FileSystems.getDefault();
 
         Iterable<Path> it = fs.getRootDirectories();
@@ -25,6 +27,8 @@ public class PathList {
         }
 
         System.out.println(fs);
+
+        System.out.println(Files.getAttribute(Paths.get("C:\\D\\programming\\kaushik\\home\\trialDirectory\\abc.txt"), "size"));
     }
 
 }
