@@ -28,7 +28,8 @@ public class PathList {
 
         System.out.println(fs);
 
-        System.out.println(Files.getAttribute(Paths.get("C:\\D\\programming\\kaushik\\home\\trialDirectory\\abc.txt"), "size"));
+        Object o = Files.getAttribute(Paths.get("C:\\D\\programming\\kaushik\\home\\trialDirectory"), "size");
+        System.out.println(o.toString());
     }
 
 }

@@ -1,1 +1,12 @@
 sajdklfjalkdskl;ffjakljdk;lfjak;ljdk;lfjskljad;ogewiohigi;oaoj
+
+changes to be made:
+1) need to add encrypted routeds with path as attribute instead of variable
+2) need to add file upload feature
+
+flaws and faults:
+1) .. works when passed without browser and may lead to leak of resources
+
+to learn:
+1) how to encrypt the requests such that when called from front end the user cant see the encrypted path and will be oblivious to path structure
+2) whether this is available by default in https and if yes then how 

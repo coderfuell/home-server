@@ -11,10 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,7 +44,7 @@ public class PathController {
         List<Path> pathList = Files.list(toFetchIn).collect(Collectors.toList());
 
         for (Path p : pathList) {
-            response.add(PathResponseModifier.getPathResponse(p));
+            response.add(ControlerModifiers.getPathResponse(p));
         }
         return response;
     }
@@ -65,11 +62,7 @@ public class PathController {
             throw new IsDirectoryException();
         }
 
-        Resource resource = new UrlResource(toFetch.toUri());
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                .body(resource);
+        return ControlerModifiers.getResourceResponse(toFetch);
     }
 
     @PostMapping("/create/{*path}")

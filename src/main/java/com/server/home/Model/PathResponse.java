@@ -28,6 +28,10 @@ public class PathResponse {
         return this.timeModified;
     }
 
+    public Integer getSize() {
+        return size;
+    }
+
     public void setPath(String path){
         this.path = path;
     }
@@ -38,5 +42,9 @@ public class PathResponse {
 
     public void setTimeModified(String timeModified){
         this.timeModified = timeModified;
+    }
+
+    public void setSize(Integer size) {
+        this.size = size;
     }
 }
