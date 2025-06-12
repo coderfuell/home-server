@@ -1,4 +1,4 @@
-package com.server.home.Controller;
+package com.server.home.Services;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,12 +12,14 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 import com.server.home.Model.PathResponse;
 
-public class ControlerModifiers {
+@Service
+public class ControllerService {
 
-    public static PathResponse getPathResponse(Path path) throws IOException {
+    public PathResponse getPathResponse(Path path) throws IOException {
 
         PathResponse response = new PathResponse();
         String stringPath = path.toString();
@@ -42,7 +44,7 @@ public class ControlerModifiers {
 
     }
 
-    public static ResponseEntity<Resource> getResourceResponse(Path path) throws IOException {
+    public ResponseEntity<Resource> getResourceResponse(Path path) throws IOException {
         Resource resource = new UrlResource(path.toUri());
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)

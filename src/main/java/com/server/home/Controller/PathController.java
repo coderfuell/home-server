@@ -1,10 +1,8 @@
 package com.server.home.Controller;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
@@ -14,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,10 +30,13 @@ import org.springframework.web.multipart.MultipartFile;
 import com.server.home.Exception.IsDirectoryException;
 import com.server.home.Model.BodyDirectory;
 import com.server.home.Model.PathResponse;
+import com.server.home.Services.ControllerService;
 
 @RestController
 @RequestMapping("/directories")
 public class PathController {
+    @Autowired
+    private ControllerService controllerService;
 
     @GetMapping("/list/{*path}")
     public List<PathResponse> getMethodName(@PathVariable String path) throws IOException {
@@ -50,7 +52,7 @@ public class PathController {
         List<Path> pathList = Files.list(toFetchIn).collect(Collectors.toList());
 
         for (Path p : pathList) {
-            response.add(ControlerModifiers.getPathResponse(p));
+            response.add(controllerService.getPathResponse(p));
         }
         return response;
     }
@@ -68,7 +70,7 @@ public class PathController {
             throw new IsDirectoryException();
         }
 
-        return ControlerModifiers.getResourceResponse(toFetch);
+        return controllerService.getResourceResponse(toFetch);
     }
 
     @PostMapping("/create/{*path}")

@@ -1,41 +1,53 @@
 package com.server.home.Model;
 
+import java.util.Collection;
+import java.util.List;
+
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.Email;
+
+
+
 
 @Entity
-public class User {
+public class User implements UserDetails{
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Integer id;
 
     @Column(unique = true)
+    @Nonnull
     private String username;
 
     @Nonnull
     private String name;
 
     @Column(unique = true)
-    @Nullable
+    @Nonnull
+    @Email
     private String email;
 
     @Nonnull
     private String password;
     
-    @ColumnDefault("user")
-    private Integer role;
+    @Enumerated(EnumType.STRING)
+    @ColumnDefault("WRITE")
+    private Role role;
 
     public User() {
     }
 
-    public User(String username, String name, String email, String password, Integer role) {
+    public User(String username, String name, String email, String password, Role role) {
         this.username = username;
         this.name = name;
         this.email = email;
@@ -43,9 +55,15 @@ public class User {
         this.role = role;
     }
 
+    @Override
+    public Collection<Role> getAuthorities(){
+        return List.of(this.role);
+    }
+
     public Integer getId() {
         return id;
     }
+    @Override
     public String getUsername() {
         return username;
     }
@@ -55,10 +73,11 @@ public class User {
     public String getEmail() {
         return email;
     }
+    @Override
     public String getPassword() {
         return password;
     }
-    public Integer getRole() {
+    public Role getRole() {
         return role;
     }
     public void setUsername(String username) {
@@ -73,7 +92,7 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
-    public void setRole(Integer role) {
+    public void setRole(Role role) {
         this.role = role;
     } 
 }
