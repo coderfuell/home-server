@@ -25,7 +25,7 @@ public class JwtService {
     private Long timeDuration;
 
     public String generateJwt(User user){
-        SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+        SecretKey key = getKey();
         Date currentTime = new Date();
         Date expirationTime = new Date(currentTime.getTime() + timeDuration);
 
@@ -38,8 +38,8 @@ public class JwtService {
         return jws;
     }
 
-    public Claims validateJwt(String jwt) throws JwtException{
-        SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+    public Claims extractClaims(String jwt) throws JwtException{
+        SecretKey key = getKey();
         Jws<Claims> jws = Jwts.parser()
         .verifyWith(key)
         .clockSkewSeconds(180)
@@ -48,4 +48,15 @@ public class JwtService {
         Claims claims = jws.getPayload();
         return claims;
     }
+
+    public String getUsername(String jwt){
+        Claims claims = extractClaims(jwt);
+        return claims.getIssuer();
+    }
+
+    private SecretKey getKey(){
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+    }
+    
+
 }
