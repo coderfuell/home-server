@@ -3,7 +3,6 @@ package com.server.home.Model;
 import java.util.Collection;
 import java.util.List;
 
-import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.annotation.Nonnull;
@@ -41,7 +40,6 @@ public class User implements UserDetails{
     private String password;
     
     @Enumerated(EnumType.STRING)
-    @ColumnDefault("WRITE")
     private Role role;
 
     public User() {

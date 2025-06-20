@@ -1,12 +1,12 @@
-package com.server.home.Model;
+package com.server.home.Dto;
 
-public class BodyDirectory {
+public class CreateDirectoryDto {
     private String directoryName;
 
-    public BodyDirectory() {
+    public CreateDirectoryDto() {
     }
 
-    public BodyDirectory(String directoryName) {
+    public CreateDirectoryDto(String directoryName) {
         this.directoryName = directoryName;
     }
 
@@ -15,6 +15,5 @@ public class BodyDirectory {
     }
     public void setDirectoryName(String directoryName) {
         this.directoryName = directoryName;
-    }
-    
+    }    
 }

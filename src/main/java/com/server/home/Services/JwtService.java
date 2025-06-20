@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 import com.server.home.Model.User;
@@ -15,6 +16,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 
 @Service
 public class JwtService {
@@ -23,6 +25,11 @@ public class JwtService {
 
     @Value("${jwt.time.duration}")
     private Long timeDuration;
+
+    public String generateBearer(User user){
+        String jwt = generateJwt(user);
+        return "Bearer " + jwt;
+    }
 
     public String generateJwt(User user){
         SecretKey key = getKey();
@@ -38,6 +45,14 @@ public class JwtService {
         return jws;
     }
 
+    public Cookie generateCookie(User user){
+        String bearer = generateBearer(user);
+        Cookie cookie = new Cookie("Authorization", bearer);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/directories/");
+        return cookie;
+    }
+
     public Claims extractClaims(String jwt) throws JwtException{
         SecretKey key = getKey();
         Jws<Claims> jws = Jwts.parser()
@@ -49,7 +64,24 @@ public class JwtService {
         return claims;
     }
 
-    public String getUsername(String jwt){
+    public String getUsername(Cookie[] cookies){
+        String bearer = null;
+        if (cookies != null){
+            for (Cookie cookie: cookies){
+                if (cookie.getName().equals("Authorization")){
+                    bearer = cookie.getValue();
+                    break;
+                }
+            }
+        }
+        if (bearer == null || !bearer.startsWith("Bearer ")){
+            throw new BadCredentialsException("no bearer token passed");
+        }
+        return bearer;
+    }
+
+    public String getUsername(String bearer){
+        String jwt = bearer.substring(7);
         Claims claims = extractClaims(jwt);
         return claims.getIssuer();
     }

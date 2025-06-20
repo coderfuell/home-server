@@ -27,8 +27,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.server.home.Dto.CreateDirectoryDto;
 import com.server.home.Exception.IsDirectoryException;
-import com.server.home.Model.BodyDirectory;
 import com.server.home.Model.PathResponse;
 import com.server.home.Services.ControllerService;
 
@@ -74,7 +74,7 @@ public class PathController {
     }
 
     @PostMapping("/create/{*path}")
-    public ResponseEntity<Void> createDirectory(@PathVariable String path,  @RequestBody BodyDirectory body) throws IOException {
+    public ResponseEntity<Void> createDirectory(@PathVariable String path,  @RequestBody CreateDirectoryDto body) throws IOException {
         String home = "C:";
         Path toCreateIn = Paths.get(home + path);
 

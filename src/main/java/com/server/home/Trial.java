@@ -13,6 +13,7 @@ public class Trial {
         SecretKey key = Jwts.SIG.HS256.key().build();
         String s = Encoders.BASE64.encode(key.getEncoded());
         System.out.println(s);
+        
 
 
         // Password pas = Keys.password(tr.secretKey.toCharArray());
