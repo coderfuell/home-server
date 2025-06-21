@@ -1,6 +1,7 @@
 package com.server.home.Exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,8 +18,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EmailAlreadyTakenException.class)
     public void emailAlreadyTakenException(){}
 
-    @ResponseStatus(value = HttpStatus.CONFLICT, reason = "user not found")
+    
     @ExceptionHandler(UsernameNotFoundException.class)
-    public void userNotExistException() {
+    public ResponseEntity<String> userNotExistException(Exception e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 }

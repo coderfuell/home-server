@@ -1,6 +1,7 @@
 package com.server.home.Services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -46,12 +47,31 @@ public class CustomUserDetailsService implements UserDetailsService{
         return user;
     }
 
-    public Boolean verifyUser(String username, String password){
+    public User createUser(User user){
+        createUser(user.getUsername(), user.getName(), user.getPassword(), user.getEmail(), user.getRole());
+        return user;
+    }
+
+    public User verifyUserByUsername(String username, String password){
         User user = userRepository.findByUsername(username);
         if (user == null){
-            throw new UsernameNotFoundException("user not found");
+            throw new UsernameNotFoundException("username is invalid");
         }
-        return verifyPassword(password, user.getPassword());
+        if (verifyPassword(password, user.getPassword())) {
+            return user;
+        }
+        throw new BadCredentialsException("invalid password");
+    }
+
+    public User verifyUserByEmail(String email, String password){
+        User user = userRepository.findByEmail(email);
+        if (user == null){
+            throw new UsernameNotFoundException("email is invalid");
+        }
+        if (verifyPassword(password, user.getPassword())){
+            return user;
+        }
+        throw new BadCredentialsException("invalid password");
     }
 
     private Boolean verifyPassword(String enteredPassword, String userPassword){

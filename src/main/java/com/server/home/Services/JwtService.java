@@ -26,12 +26,12 @@ public class JwtService {
     @Value("${jwt.time.duration}")
     private Long timeDuration;
 
-    public String generateBearer(User user){
+    private String generateBearer(User user){
         String jwt = generateJwt(user);
         return "Bearer " + jwt;
     }
 
-    public String generateJwt(User user){
+    private String generateJwt(User user){
         SecretKey key = getKey();
         Date currentTime = new Date();
         Date expirationTime = new Date(currentTime.getTime() + timeDuration);
@@ -50,16 +50,17 @@ public class JwtService {
         Cookie cookie = new Cookie("Authorization", bearer);
         cookie.setHttpOnly(true);
         cookie.setPath("/directories/");
+        cookie.setMaxAge(60*60*24*365);
         return cookie;
     }
 
-    public Claims extractClaims(String jwt) throws JwtException{
+    private Claims extractClaims(String jwt) throws JwtException{
         SecretKey key = getKey();
         Jws<Claims> jws = Jwts.parser()
-        .verifyWith(key)
-        .clockSkewSeconds(180)
-        .build()
-        .parseSignedClaims(jwt);
+            .verifyWith(key)
+            .clockSkewSeconds(180)
+            .build()
+            .parseSignedClaims(jwt);
         Claims claims = jws.getPayload();
         return claims;
     }
@@ -77,10 +78,11 @@ public class JwtService {
         if (bearer == null || !bearer.startsWith("Bearer ")){
             throw new BadCredentialsException("no bearer token passed");
         }
-        return bearer;
+        String username = getUsername(bearer);
+        return username;
     }
 
-    public String getUsername(String bearer){
+    private String getUsername(String bearer){
         String jwt = bearer.substring(7);
         Claims claims = extractClaims(jwt);
         return claims.getIssuer();
