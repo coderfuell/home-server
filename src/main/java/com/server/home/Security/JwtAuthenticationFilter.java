@@ -19,12 +19,17 @@ import jakarta.servlet.http.HttpServletResponse;
 
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private JwtService jwtService;
-    private CustomUserDetailsService userDetailsService;
+    private final JwtService jwtService;
+    private final CustomUserDetailsService userDetailsService;
 
     public JwtAuthenticationFilter(JwtService jwtService, CustomUserDetailsService userDetailsService ) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+    }
+
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/user/");
     }
 
     @Override

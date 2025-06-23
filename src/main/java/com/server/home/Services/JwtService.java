@@ -28,7 +28,7 @@ public class JwtService {
 
     private String generateBearer(User user){
         String jwt = generateJwt(user);
-        return "Bearer " + jwt;
+        return "Bearer-" + jwt;
     }
 
     private String generateJwt(User user){
@@ -47,6 +47,7 @@ public class JwtService {
 
     public Cookie generateCookie(User user){
         String bearer = generateBearer(user);
+        System.out.println(bearer);
         Cookie cookie = new Cookie("Authorization", bearer);
         cookie.setHttpOnly(true);
         cookie.setPath("/directories/");
@@ -75,7 +76,7 @@ public class JwtService {
                 }
             }
         }
-        if (bearer == null || !bearer.startsWith("Bearer ")){
+        if (bearer == null || !bearer.startsWith("Bearer-")){
             throw new BadCredentialsException("no bearer token passed");
         }
         String username = getUsername(bearer);
