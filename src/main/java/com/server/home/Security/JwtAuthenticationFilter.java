@@ -27,6 +27,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
     }
 
+    @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
         return path.startsWith("/user/");
@@ -46,8 +47,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterchain.doFilter(request, response);
 
-        Cookie cookie = jwtService.generateCookie(user);
-        response.addCookie(cookie);
     }
     
 }
