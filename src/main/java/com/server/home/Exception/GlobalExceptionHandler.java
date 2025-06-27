@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import io.jsonwebtoken.ExpiredJwtException;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -22,5 +24,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<String> userNotExistException(Exception e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<String> expiredJwtException(Exception e) {
+        return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(e.getMessage());
     }
 }

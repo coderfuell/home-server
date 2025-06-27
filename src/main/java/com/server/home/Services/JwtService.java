@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.server.home.Model.User;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -23,18 +24,29 @@ public class JwtService {
     @Value("${jwt.secret.key}")
     private String secretKey;
 
+    @Value("${jwt.refresh.key}")
+    private String refreshKey;
+
     @Value("${jwt.time.duration}")
     private Long timeDuration;
 
+    @Value("${jwt.refresh.duration}")
+    private Long refreshDuration;
+
     private String generateBearer(User user){
-        String jwt = generateJwt(user);
+        String jwt = generateJwt(user, secretKey, timeDuration);
         return "Bearer-" + jwt;
     }
 
-    private String generateJwt(User user){
-        SecretKey key = getKey();
+    private String generateRefresh(User user){
+        String refresh = generateJwt(user, refreshKey, refreshDuration);
+        return refresh;
+    }
+
+    private String generateJwt(User user, String tokenKey, Long duration){
+        SecretKey key = getKey(tokenKey);
         Date currentTime = new Date();
-        Date expirationTime = new Date(currentTime.getTime() + timeDuration);
+        Date expirationTime = new Date(currentTime.getTime() + duration);
 
         String jws = Jwts.builder()
         .issuer(user.getUsername())
@@ -45,37 +57,41 @@ public class JwtService {
         return jws;
     }
 
-    public Cookie generateCookie(User user){
+    public Cookie generateAccessCookie(User user){
         String bearer = generateBearer(user);
-        System.out.println(bearer);
-        Cookie cookie = new Cookie("Authorization", bearer);
+        return generateCookie("Authorization", bearer);
+    }
+
+    public Cookie generateRefreshCookie(User user){
+        String refreshToken = generateRefresh(user);
+        return generateCookie("Refresh", refreshToken);
+    }
+
+    private Cookie generateCookie(String cookieName, String token){
+        Cookie cookie = new Cookie(cookieName, token);
         cookie.setHttpOnly(true);
         cookie.setPath("/directories/");
-        cookie.setMaxAge(60*60*24*365);
+        cookie.setMaxAge(60 * 60 * 24 * 365);
         return cookie;
     }
 
-    private Claims extractClaims(String jwt) throws JwtException{
-        SecretKey key = getKey();
-        Jws<Claims> jws = Jwts.parser()
-            .verifyWith(key)
-            .clockSkewSeconds(180)
-            .build()
-            .parseSignedClaims(jwt);
-        Claims claims = jws.getPayload();
-        return claims;
+
+    public String validateRefreshToken(Cookie[] cookies){
+        String refreshToken = getCookieValue(cookies, "Refresh");
+        if (refreshToken == null) {
+            throw new BadCredentialsException("no refresh token passed");
+        }
+        Claims claims;
+        try{
+        claims = extractClaims(refreshToken, refreshKey);}
+        catch (ExpiredJwtException e){
+            throw new ExpiredJwtException(e.getHeader(), e.getClaims(), "Refresh Token Expired: " + e.getMessage());
+        }
+        return claims.getIssuer();
     }
 
     public String getUsername(Cookie[] cookies){
-        String bearer = null;
-        if (cookies != null){
-            for (Cookie cookie: cookies){
-                if (cookie.getName().equals("Authorization")){
-                    bearer = cookie.getValue();
-                    break;
-                }
-            }
-        }
+        String bearer = getCookieValue(cookies, "Authorization");
         if (bearer == null || !bearer.startsWith("Bearer-")){
             throw new BadCredentialsException("no bearer token passed");
         }
@@ -83,14 +99,38 @@ public class JwtService {
         return username;
     }
 
+    private String getCookieValue(Cookie[] cookies, String cookieName){
+        String token = null;
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(cookieName)) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+        return token;
+    }
+
     private String getUsername(String bearer){
         String jwt = bearer.substring(7);
-        Claims claims = extractClaims(jwt);
+        Claims claims = extractClaims(jwt, secretKey);
         return claims.getIssuer();
     }
 
-    private SecretKey getKey(){
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+    private Claims extractClaims(String jwt, String tokenKey) throws JwtException {
+        SecretKey key = getKey(tokenKey);
+        Jws<Claims> jws = Jwts.parser()
+                .verifyWith(key)
+                .clockSkewSeconds(0)
+                .build()
+                .parseSignedClaims(jwt);
+        Claims claims = jws.getPayload();
+        return claims;
+    }
+
+    private SecretKey getKey(String key){
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(key));
     }
     
 

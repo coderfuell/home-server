@@ -10,10 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.server.home.Dto.LoginDto;
 import com.server.home.Model.User;
+import com.server.home.Services.AuthService;
 import com.server.home.Services.CustomUserDetailsService;
-import com.server.home.Services.JwtService;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
@@ -22,8 +21,9 @@ public class UserController {
 
     @Autowired
     private CustomUserDetailsService userDetailsService;
+
     @Autowired
-    private JwtService jwtService;
+    private AuthService authService;
 
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping("/signup")
@@ -39,7 +39,7 @@ public class UserController {
         } else {
             user = userDetailsService.verifyUserByUsername(loginDto.getUsername(), loginDto.getPassword());
         }
-        Cookie cookie = jwtService.generateCookie(user);
-        response.addCookie(cookie);
+        authService.addAuthToken(response, user);
+        authService.addRefreshToken(response, user);
     }
 }
